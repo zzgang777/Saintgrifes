@@ -19,8 +19,14 @@ const anton = Anton({
   display: "swap",
 })
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`) ??
+  (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`) ??
+  "http://localhost:3000"
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://estilodailha.com.br"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Estilo da Ilha | Loja de Roupas em São Luís - MA (SLZ)",
     template: "%s | Estilo da Ilha",
@@ -41,18 +47,18 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    url: "https://estilodailha.com.br",
+    url: siteUrl,
     siteName: "Estilo da Ilha",
     title: "Estilo da Ilha | Loja de Roupas em São Luís - MA",
     description:
       "Moda, atitude e personalidade em um só lugar. Referência em SLZ com estética tropical e estilo urbano.",
-    images: [{ url: "/hero-estilo.png", width: 1200, height: 630, alt: "Estilo da Ilha" }],
+    images: [{ url: "/banner-boas-vindas.png", width: 1200, height: 630, alt: "Estilo da Ilha" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Estilo da Ilha | Loja de Roupas em São Luís - MA",
     description: "Moda, atitude e personalidade em um só lugar. Referência em SLZ.",
-    images: ["/hero-estilo.png"],
+    images: ["/banner-boas-vindas.png"],
   },
   icons: {
     icon: "/estilo-da-ilha-mark.png",
