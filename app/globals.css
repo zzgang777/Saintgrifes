@@ -1,0 +1,147 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #fbf6ec;
+  --foreground: #15100c;
+
+  --card: #ffffff;
+  --card-foreground: #15100c;
+
+  --popover: #ffffff;
+  --popover-foreground: #15100c;
+
+  --primary: #e52316;
+  --primary-foreground: #fff8ef;
+
+  --secondary: #f0e8d8;
+  --secondary-foreground: #15100c;
+
+  --muted: #f3ecdd;
+  --muted-foreground: #756a5b;
+
+  --accent: #a80f08;
+  --accent-foreground: #fff8ef;
+
+  --sunset: #f2a53d;
+  --sunset-foreground: #15100c;
+
+  --destructive: #a80f08;
+  --destructive-foreground: #ffffff;
+
+  --border: #e7dcc4;
+  --input: #e7dcc4;
+  --ring: #e52316;
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: #120d0a;
+  --foreground: #fbf6ec;
+
+  --card: #1a140f;
+  --card-foreground: #fbf6ec;
+
+  --popover: #1a140f;
+  --popover-foreground: #fbf6ec;
+
+  --primary: #e52316;
+  --primary-foreground: #fff8ef;
+
+  --secondary: #241c15;
+  --secondary-foreground: #fbf6ec;
+
+  --muted: #241c15;
+  --muted-foreground: #b3a693;
+
+  --accent: #e52316;
+  --accent-foreground: #fff8ef;
+
+  --sunset: #f2a53d;
+  --sunset-foreground: #15100c;
+
+  --destructive: #a80f08;
+  --destructive-foreground: #ffffff;
+
+  --border: #2e2419;
+  --input: #2e2419;
+  --ring: #e52316;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-sunset: var(--sunset);
+  --color-sunset-foreground: var(--sunset-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-anton), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  .font-display {
+    letter-spacing: 0.01em;
+  }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 24s linear infinite;
+}
+
+@keyframes drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, -50px) scale(1.15); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-70px, 60px) scale(1.2); }
+}
+@keyframes drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 40px) scale(1.1); }
+}
+.animate-drift-a { animation: drift-a 26s ease-in-out infinite; }
+.animate-drift-b { animation: drift-b 32s ease-in-out infinite; }
+.animate-drift-c { animation: drift-c 22s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift-a, .animate-drift-b, .animate-drift-c { animation: none; }
+}
