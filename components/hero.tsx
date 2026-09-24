@@ -1,17 +1,28 @@
+"use client"
+
+import { useRef } from "react"
 import Image from "next/image"
+import { motion, useScroll, useTransform } from "motion/react"
 
 export function Hero() {
+  const ref = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] })
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "16%"])
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1])
+
   return (
-    <section className="relative overflow-hidden bg-foreground">
-      <div className="relative aspect-[16/9] w-full lg:aspect-auto lg:min-h-[82vh]">
-        <Image
-          src="/banner-boas-vindas.png"
-          alt="Coleção Estilo da Ilha"
-          fill
-          priority
-          className="object-cover object-center lg:object-right"
-          sizes="100vw"
-        />
+    <section ref={ref} className="relative overflow-hidden bg-ink">
+      <div className="relative aspect-[1671/941] w-full">
+        <motion.div className="absolute inset-0" style={{ y, scale }}>
+          <Image
+            src="/banner-inicio-2.webp"
+            alt="Sejam bem-vindos"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        </motion.div>
       </div>
     </section>
   )

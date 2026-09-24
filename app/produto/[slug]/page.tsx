@@ -1,11 +1,10 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { CartProvider } from "@/components/cart-provider"
-import { AnimatedBackground } from "@/components/animated-background"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { WhatsappFloat } from "@/components/whatsapp-float"
+import { InstagramFloat } from "@/components/instagram-float"
 import { ProductDetail } from "@/components/product-detail"
 import { ProductCard } from "@/components/product-card"
 import { getProduct, getRelated, getProducts } from "@/lib/products"
@@ -31,7 +30,7 @@ export async function generateMetadata({
     title: `${product.name} — ${priceLabel}`,
     description: product.description,
     openGraph: {
-      title: `${product.name} | Estilo da Ilha`,
+      title: `${product.name} | Saint Grifes`,
       description: product.description,
       images: [{ url: product.image, width: 800, height: 1067, alt: product.name }],
     },
@@ -51,7 +50,6 @@ export default async function ProductPage({
 
   return (
     <CartProvider>
-      <AnimatedBackground />
       <SiteHeader />
       <main>
         <ProductDetail product={product} />
@@ -69,7 +67,7 @@ export default async function ProductPage({
       </main>
       <SiteFooter />
       <CartDrawer />
-      <WhatsappFloat />
+      <InstagramFloat />
     </CartProvider>
   )
 }

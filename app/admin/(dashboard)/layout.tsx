@@ -1,11 +1,15 @@
 import type React from "react"
-import { AdminSidebar } from "@/components/admin/sidebar"
+import { cookies } from "next/headers"
+import { AdminShell } from "@/components/admin/admin-shell"
+import { readAdminSession } from "@/lib/admin-session"
 
-export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
+  const store = await cookies()
+  const session = await readAdminSession(store.get("admin_session")?.value)
+
   return (
-    <div className="flex min-h-screen bg-zinc-950">
-      <AdminSidebar />
-      <main className="flex-1 overflow-x-hidden p-6 lg:p-8">{children}</main>
+    <div className="admin-theme min-h-screen bg-zinc-950 text-zinc-200">
+      <AdminShell session={session}>{children}</AdminShell>
     </div>
   )
 }

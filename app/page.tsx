@@ -1,33 +1,38 @@
+import { Suspense } from "react"
 import { CartProvider } from "@/components/cart-provider"
-import { AnimatedBackground } from "@/components/animated-background"
 import { SiteHeader } from "@/components/site-header"
 import { Hero } from "@/components/hero"
 import { CategoriesSection } from "@/components/categories-section"
-import { ExclusiveBanner } from "@/components/exclusive-banner"
+import { DeliveryBanner } from "@/components/delivery-banner"
 import { ProductShowcase } from "@/components/product-showcase"
-import { AboutSection } from "@/components/about-section"
+import { SectionSkeleton } from "@/components/section-skeleton"
 import { SiteFooter } from "@/components/site-footer"
 import { CartDrawer } from "@/components/cart-drawer"
-import { WhatsappFloat } from "@/components/whatsapp-float"
+import { InstagramFloat } from "@/components/instagram-float"
 import { getProducts } from "@/lib/products"
 
-export default async function HomePage() {
+async function Showcase() {
   const products = await getProducts()
+  return <ProductShowcase products={products} />
+}
 
+export default function HomePage() {
   return (
     <CartProvider>
-      <AnimatedBackground />
       <SiteHeader />
       <main>
         <Hero />
-        <CategoriesSection />
-        <ExclusiveBanner />
-        <ProductShowcase products={products} />
-        <AboutSection />
+        <Suspense fallback={<SectionSkeleton tiles={4} />}>
+          <CategoriesSection />
+        </Suspense>
+        <DeliveryBanner />
+        <Suspense fallback={<SectionSkeleton tiles={8} />}>
+          <Showcase />
+        </Suspense>
       </main>
       <SiteFooter />
       <CartDrawer />
-      <WhatsappFloat />
+      <InstagramFloat />
     </CartProvider>
   )
 }

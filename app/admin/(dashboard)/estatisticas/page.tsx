@@ -1,10 +1,10 @@
-import { Eye, MousePointerClick, ExternalLink } from "lucide-react"
+import { Eye, MousePointerClick } from "lucide-react"
 
 const eventos = [
   { nome: "Clique em produto", quando: "Cliente clica na foto de um produto na vitrine" },
   { nome: "Adicionar ao carrinho", quando: "Cliente adiciona um produto ao carrinho" },
-  { nome: "WhatsApp produto", quando: "Cliente clica em falar no WhatsApp sobre um produto" },
-  { nome: "Consultar no WhatsApp", quando: "Cliente pede o valor de um kit (preço sob consulta)" },
+  { nome: "Instagram produto", quando: "Cliente clica em falar no Instagram sobre um produto" },
+  { nome: "Consultar no Instagram", quando: "Cliente pede o valor de um produto sob consulta" },
 ]
 
 export default function AdminEstatisticasPage() {
@@ -17,15 +17,14 @@ export default function AdminEstatisticasPage() {
 
       <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
         <div className="flex items-start gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-red-600/10 text-red-500">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
             <Eye className="size-4.5" />
           </span>
           <div>
             <p className="font-medium text-white">Visitas ao site</p>
             <p className="mt-1 text-sm text-zinc-400">
-              Já estão sendo contadas automaticamente pelo Vercel Analytics, que está instalado no site desde o
-              início — não precisei adicionar nada novo para isso funcionar. Toda visita a qualquer página, incluindo
-              cada produto, já é registrada.
+              Por enquanto, nada está contando as visitas. O site usava o Vercel Analytics, mas isso só funciona em
+              projetos hospedados na Vercel — como a loja agora roda no Netlify, esse contador foi desligado.
             </p>
           </div>
         </div>
@@ -33,13 +32,14 @@ export default function AdminEstatisticasPage() {
 
       <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
         <div className="mb-4 flex items-start gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-red-600/10 text-red-500">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
             <MousePointerClick className="size-4.5" />
           </span>
           <div>
             <p className="font-medium text-white">Cliques em produtos</p>
             <p className="mt-1 text-sm text-zinc-400">
-              Agora o site registra estes eventos sempre que alguém interage com um produto:
+              O site já registra estes eventos em cada ponto do código (função <code>track</code> em{" "}
+              <code>lib/track.ts</code>), mas eles não estão sendo guardados em lugar nenhum ainda:
             </p>
           </div>
         </div>
@@ -54,25 +54,11 @@ export default function AdminEstatisticasPage() {
       </div>
 
       <div className="rounded-xl border border-dashed border-zinc-800 bg-zinc-900/50 p-5">
-        <p className="font-medium text-zinc-300">Onde ver os números</p>
+        <p className="font-medium text-zinc-300">Como ativar de novo</p>
         <p className="mt-1 text-sm text-zinc-500">
-          Depois que o site estiver publicado, os números de visitas e desses eventos aparecem no painel da própria
-          Vercel: entre no projeto em vercel.com e abra a aba <span className="text-zinc-300">Analytics</span> (o
-          total de visitas fica em "Pages" e os cliques em "Events").
+          Peça pra gravar visitas e esses cliques direto no Supabase (o mesmo banco dos produtos e pedidos) — aí os
+          números aparecem aqui dentro deste painel, sem depender de nenhum serviço externo.
         </p>
-        <p className="mt-3 text-sm text-zinc-500">
-          Para esses números aparecerem aqui dentro deste painel, seria preciso conectar a API paga do Vercel
-          Analytics (plano Pro) ou um banco de dados próprio para guardar os eventos.
-        </p>
-        <a
-          href="https://vercel.com/dashboard"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-red-500 hover:underline"
-        >
-          Abrir painel da Vercel
-          <ExternalLink className="size-3.5" />
-        </a>
       </div>
     </div>
   )

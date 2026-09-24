@@ -21,6 +21,7 @@ export async function POST(request: Request) {
     category_label: body.categoryLabel,
     badge: body.badge || null,
     sizes: body.sizes,
+    stock: body.stock ?? {},
     description: body.description,
     best_seller: Boolean(body.bestSeller),
     is_new: Boolean(body.isNew),

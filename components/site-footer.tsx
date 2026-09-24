@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { siteConfig } from "@/lib/site"
-import { Logo } from "@/components/logo"
 
 const columns = [
   {
@@ -16,10 +15,7 @@ const columns = [
   {
     title: "Atendimento",
     links: [
-      { label: "WhatsApp", href: "/contato" },
-      { label: "Catálogo", href: siteConfig.catalogUrl },
-      { label: "Loja física", href: "/contato" },
-      { label: "Horários", href: "/contato" },
+      { label: "Instagram", href: siteConfig.instagramUrl },
     ],
   },
   {
@@ -35,22 +31,19 @@ const columns = [
 
 export function SiteFooter() {
   return (
-    <footer className="bg-foreground text-background">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <Logo />
-          <p className="mt-4 text-sm text-white/60">Referência em SLZ</p>
-        </div>
+    <footer className="border-t border-border bg-ink/60 text-bone">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-3">
 
         {columns.map((col) => (
           <div key={col.title}>
-            <h3 className="mb-4 font-display text-lg uppercase tracking-wide text-primary">{col.title}</h3>
+            <h3 className="mb-4 font-display text-lg uppercase tracking-wide text-signal">{col.title}</h3>
             <ul className="flex flex-col gap-2.5">
               {col.links.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/70 transition-colors hover:text-white"
+                    {...(link.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    className="inline-block text-sm text-white/70 transition-all hover:translate-x-1 hover:text-white"
                   >
                     {link.label}
                   </Link>

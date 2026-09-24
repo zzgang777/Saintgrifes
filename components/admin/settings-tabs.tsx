@@ -59,7 +59,7 @@ export function SettingsTabs() {
             onClick={() => setActive(tab.key)}
             className={`whitespace-nowrap rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${
               active === tab.key
-                ? "border-b-2 border-red-600 text-white"
+                ? "border-b-2 border-indigo-500 text-white"
                 : "text-zinc-500 hover:text-zinc-300"
             }`}
           >
@@ -74,17 +74,13 @@ export function SettingsTabs() {
             <Field label="Nome da loja" value={siteConfig.name} />
             <Field label="Cidade" value={siteConfig.city} />
             <Field label="Tagline" value={siteConfig.tagline} />
-            <Field label="Catálogo (link externo)" value={siteConfig.catalogUrl} />
           </div>
         )}
 
         {active === "contato" && (
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Link do WhatsApp Business" value={siteConfig.whatsappBusinessLink} />
             <Field label="Instagram" value={siteConfig.instagramUrl} />
-            <div className="sm:col-span-2">
-              <Field label="Mensagem padrão do WhatsApp" value={siteConfig.whatsappMessage} multiline />
-            </div>
+            <Field label="Conversa direta (DM) do Instagram" value={siteConfig.instagramDmUrl} />
           </div>
         )}
 

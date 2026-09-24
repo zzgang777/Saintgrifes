@@ -23,6 +23,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ slug
       category_label: body.categoryLabel,
       badge: body.badge || null,
       sizes: body.sizes,
+      stock: body.stock ?? {},
       description: body.description,
       best_seller: Boolean(body.bestSeller),
       is_new: Boolean(body.isNew),

@@ -1,6 +1,12 @@
 import { supabase } from "@/lib/supabase"
 
-export type Category = "tenis" | "sandalia" | "bermuda" | "camisa" | "kits"
+export type Category = "tenis" | "sandalia" | "bermuda" | "camisa"
+
+// Categorias que existem na loja agora. Linhas do banco com outra categoria (por exemplo, uma
+// categoria pausada temporariamente) são ignoradas, mesmo que ainda estejam cadastradas no
+// Supabase — os produtos continuam lá, só saem do ar. Tênis e sandálias foram pausados por
+// enquanto; para voltar a vendê-los, é só incluir "tenis" e "sandalia" aqui de novo.
+const knownCategories: string[] = ["bermuda", "camisa"]
 
 export type Product = {
   slug: string
@@ -12,10 +18,27 @@ export type Product = {
   categoryLabel: string
   badge?: "NOVO" | "OFERTA"
   sizes: string[]
+  // Quantidade em estoque por tamanho (ex.: { M: 2, G: 0 }). Um tamanho sem entrada aqui é
+  // tratado como esgotado — sempre que um tamanho existe em "sizes", ele deve aparecer aqui também.
+  stock: Record<string, number>
   description: string
   bestSeller?: boolean
   isNew?: boolean
   onRequest?: boolean
+}
+
+// Estoque restante de um tamanho (0 se não estiver cadastrado).
+export function sizeStock(product: Product, size: string): number {
+  return Math.max(0, Math.trunc(product.stock?.[size] ?? 0))
+}
+
+export function isSizeAvailable(product: Product, size: string): boolean {
+  return sizeStock(product, size) > 0
+}
+
+// Verdadeiro quando nenhum tamanho tem unidade disponível.
+export function isSoldOut(product: Product): boolean {
+  return product.sizes.length > 0 && product.sizes.every((s) => !isSizeAvailable(product, s))
 }
 
 export type CategoryTile = {
@@ -32,8 +55,7 @@ export const fallbackCategories: CategoryTile[] = [
   { key: "tenis", label: "Tênis", description: "Os modelos mais procurados da rua", image: "/products/tenis-dunk.jpg" },
   { key: "camisa", label: "Camisas", description: "Camisas e conjuntos que fecham o look", image: "/products/camisa-tailandesa.jpg" },
   { key: "sandalia", label: "Sandálias", description: "Conforto pra qualquer hora do dia", image: "/products/kenner-slide.jpg" },
-  { key: "bermuda", label: "Bermudas", description: "Pra aguentar o calor da ilha", image: "/products/bermuda-sarja.jpg" },
-  { key: "kits", label: "Kits", description: "Combos fechados sob consulta", image: "/products/kit-oversized.jpg" },
+  { key: "bermuda", label: "Bermudas", description: "Pra aguentar o calor de SLZ", image: "/products/bermuda-sarja.jpg" },
   { key: "novidades", label: "Novidades", description: "Acabou de chegar na loja", image: "/products/conjunto-de-time.jpg" },
 ]
 
@@ -41,7 +63,11 @@ const SIZES_TOP = ["P", "M", "G", "GG"]
 const SIZES_SHORT = ["38", "40", "42", "44"]
 const SIZES_SHOE = ["38", "39", "40", "41", "42", "43"]
 
-export const fallbackProducts: Product[] = [
+// 10 unidades por tamanho, só para o catálogo de reserva não aparecer todo esgotado.
+const stockFrom = (sizes: string[], qty = 10): Record<string, number> =>
+  Object.fromEntries(sizes.map((s) => [s, qty]))
+
+const fallbackProductsBase: Omit<Product, "stock">[] = [
   {
     slug: "asuna-2-0",
     name: "Sandália Nike Asuna 2.0",
@@ -53,7 +79,7 @@ export const fallbackProducts: Product[] = [
     isNew: true,
     bestSeller: true,
     sizes: SIZES_SHOE,
-    description: "Sandália slide Nike Asuna 2.0, confortável no dia a dia da ilha. Consulte disponibilidade de cor e numeração.",
+    description: "Sandália slide Nike Asuna 2.0, confortável para o dia a dia em São Luís. Consulte disponibilidade de cor e numeração.",
   },
   {
     slug: "bermuda-sarja",
@@ -132,7 +158,7 @@ export const fallbackProducts: Product[] = [
     isNew: true,
     bestSeller: true,
     sizes: SIZES_SHOE,
-    description: "Sandália Kenner nacional, resistente e confortável para o dia a dia na ilha.",
+    description: "Sandália Kenner nacional, resistente e confortável para o dia a dia em São Luís.",
   },
   {
     slug: "tenis-academy",
@@ -199,51 +225,9 @@ export const fallbackProducts: Product[] = [
     sizes: SIZES_SHOE,
     description: "Tênis Dunk, ícone do streetwear com cores disponíveis sob consulta.",
   },
-  {
-    slug: "kit-algodao",
-    name: "Kit Algodão",
-    price: 0,
-    onRequest: true,
-    image: "/products/kit-algodao.jpg",
-    category: "kits",
-    categoryLabel: "Kits",
-    sizes: SIZES_TOP,
-    description: "Kit fechado em algodão, quantidade e peças a combinar direto com a loja pelo WhatsApp.",
-  },
-  {
-    slug: "kit-oversized",
-    name: "Kit Oversized",
-    price: 0,
-    onRequest: true,
-    image: "/products/kit-oversized.jpg",
-    category: "kits",
-    categoryLabel: "Kits",
-    sizes: SIZES_TOP,
-    description: "Kit de camisetas oversized, quantidade e peças a combinar direto com a loja pelo WhatsApp.",
-  },
-  {
-    slug: "kit-polo",
-    name: "Kit Polo",
-    price: 0,
-    onRequest: true,
-    image: "/products/kit-polo.jpg",
-    category: "kits",
-    categoryLabel: "Kits",
-    sizes: SIZES_TOP,
-    description: "Kit de camisas polo, quantidade e peças a combinar direto com a loja pelo WhatsApp.",
-  },
-  {
-    slug: "kit-zara",
-    name: "Kit Zara",
-    price: 0,
-    onRequest: true,
-    image: "/products/kit-zara.jpg",
-    category: "kits",
-    categoryLabel: "Kits",
-    sizes: SIZES_TOP,
-    description: "Kit de looks estilo Zara, quantidade e peças a combinar direto com a loja pelo WhatsApp.",
-  },
 ]
+
+export const fallbackProducts: Product[] = fallbackProductsBase.map((p) => ({ ...p, stock: stockFrom(p.sizes) }))
 
 type ProductRow = {
   slug: string
@@ -255,6 +239,7 @@ type ProductRow = {
   category_label: string
   badge: "NOVO" | "OFERTA" | null
   sizes: string[]
+  stock: Record<string, number> | null
   description: string
   best_seller: boolean
   is_new: boolean
@@ -272,6 +257,7 @@ function mapProductRow(row: ProductRow): Product {
     categoryLabel: row.category_label,
     badge: row.badge ?? undefined,
     sizes: row.sizes,
+    stock: row.stock ?? {},
     description: row.description,
     bestSeller: row.best_seller,
     isNew: row.is_new,
@@ -279,25 +265,50 @@ function mapProductRow(row: ProductRow): Product {
   }
 }
 
+// Depois de uma falha, o banco é considerado fora do ar por 5 minutos e as consultas seguintes
+// usam o catálogo de reserva na hora, sem esperar outro timeout.
+let databaseDownUntil = 0
+const databaseIsUp = () => Boolean(supabase) && Date.now() >= databaseDownUntil
+const markDatabaseDown = () => {
+  databaseDownUntil = Date.now() + 300_000
+}
+
+// O catálogo de reserva também passa pelo filtro de categorias — assim, uma categoria pausada
+// (como tênis e sandálias agora) some da loja mesmo se o Supabase cair no meio do caminho.
+const visibleFallbackProducts = () => fallbackProducts.filter((p) => knownCategories.includes(p.category))
+const visibleFallbackCategories = () => fallbackCategories.filter((c) => c.key === "novidades" || knownCategories.includes(c.key))
+
 export async function getProducts(): Promise<Product[]> {
-  if (!supabase) return fallbackProducts
+  if (!supabase || !databaseIsUp()) return visibleFallbackProducts()
   const { data, error } = await supabase.from("products").select("*").order("created_at", { ascending: true })
-  if (error || !data) return fallbackProducts
-  return data.map(mapProductRow)
+  if (error || !data) {
+    markDatabaseDown()
+    return visibleFallbackProducts()
+  }
+  return data.map(mapProductRow).filter((p) => knownCategories.includes(p.category))
 }
 
 export async function getCategories(): Promise<CategoryTile[]> {
-  if (!supabase) return fallbackCategories
+  if (!supabase || !databaseIsUp()) return visibleFallbackCategories()
   const { data, error } = await supabase.from("categories").select("*").order("sort_order", { ascending: true })
-  if (error || !data) return fallbackCategories
-  return data.map((row) => ({ key: row.key, label: row.label, description: row.description, image: row.image }))
+  if (error || !data) {
+    markDatabaseDown()
+    return visibleFallbackCategories()
+  }
+  return data
+    .filter((row) => row.key === "novidades" || knownCategories.includes(row.key))
+    .map((row) => ({ key: row.key, label: row.label, description: row.description, image: row.image }))
 }
 
 export async function getProduct(slug: string): Promise<Product | undefined> {
-  if (!supabase) return fallbackProducts.find((p) => p.slug === slug)
+  if (!supabase || !databaseIsUp()) return visibleFallbackProducts().find((p) => p.slug === slug)
   const { data, error } = await supabase.from("products").select("*").eq("slug", slug).maybeSingle()
-  if (error || !data) return fallbackProducts.find((p) => p.slug === slug)
-  return mapProductRow(data)
+  if (error || !data) {
+    if (error) markDatabaseDown()
+    return visibleFallbackProducts().find((p) => p.slug === slug)
+  }
+  const product = mapProductRow(data)
+  return knownCategories.includes(product.category) ? product : undefined
 }
 
 export async function getRelated(product: Product, count = 4): Promise<Product[]> {

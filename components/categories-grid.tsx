@@ -25,7 +25,7 @@ function Tile({
       whileTap={{ scale: 0.98 }}
       className={className}
     >
-      <Link href="/#mais-desejados" className="group relative flex h-full flex-col justify-end overflow-hidden rounded-xl bg-foreground">
+      <Link href="/#mais-desejados" className="group relative flex h-full flex-col justify-end overflow-hidden rounded-md bg-ink">
         <Image
           src={cat.image || "/placeholder.svg"}
           alt={`Categoria ${cat.label}`}
@@ -33,7 +33,7 @@ function Tile({
           className="object-cover object-center grayscale-[60%] transition-all duration-700 group-hover:scale-105 group-hover:grayscale-0"
           sizes="(max-width: 1024px) 100vw, 50vw"
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/20 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/30 to-transparent" />
         <div className="relative flex items-end justify-between gap-3 p-5">
           <div>
             <h3 className={`font-display ${labelSize} uppercase text-white`}>{cat.label}</h3>
@@ -49,16 +49,26 @@ function Tile({
 }
 
 export function CategoriesGrid({ categories }: { categories: CategoryTile[] }) {
-  const byKey = Object.fromEntries(categories.map((c) => [c.key, c]))
+  // "Novidades" sempre ganha a faixa larga embaixo. As demais se dividem em partes iguais na
+  // fileira de cima — com poucas categorias (como agora, só Camisas e Bermudas), cada uma fica
+  // maior; se mais categorias voltarem a ficar visíveis, elas se ajustam sozinhas.
+  const main = categories.filter((c) => c.key !== "novidades")
+  const novidades = categories.find((c) => c.key === "novidades")
+  const wide = main.length <= 2
 
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:auto-rows-[240px]">
-      <Tile cat={byKey.tenis} className="col-span-2 aspect-[4/3] lg:col-span-2 lg:row-span-2 lg:aspect-auto" labelSize="text-3xl lg:text-4xl" />
-      <Tile cat={byKey.camisa} className="col-span-2 aspect-[16/9] lg:col-span-2 lg:row-span-1 lg:aspect-auto" />
-      <Tile cat={byKey.sandalia} className="aspect-square lg:aspect-auto" />
-      <Tile cat={byKey.bermuda} className="aspect-square lg:aspect-auto" />
-      <Tile cat={byKey.kits} className="col-span-2 aspect-[16/9] lg:col-span-2 lg:row-span-1 lg:aspect-auto" />
-      <Tile cat={byKey.novidades} className="col-span-2 aspect-[16/9] lg:col-span-2 lg:row-span-1 lg:aspect-auto" />
+      {main.map((cat) => (
+        <Tile
+          key={cat.key}
+          cat={cat}
+          className={`aspect-square lg:aspect-auto ${wide ? "lg:col-span-2" : "lg:col-span-1"}`}
+          labelSize={wide ? "text-3xl lg:text-4xl" : "text-2xl"}
+        />
+      ))}
+      {novidades && (
+        <Tile cat={novidades} className="col-span-2 aspect-[16/9] lg:col-span-4 lg:row-span-1 lg:aspect-auto" />
+      )}
     </div>
   )
 }

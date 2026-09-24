@@ -46,7 +46,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
       {open && (
         <div className="fixed inset-0 z-[60]">
           <motion.div
-            className="absolute inset-0 bg-foreground/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-ink/75 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -99,7 +99,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                         <p className="truncate font-medium text-foreground">{p.name}</p>
                         <p className="text-sm text-muted-foreground">{p.categoryLabel}</p>
                       </div>
-                      <span className="font-semibold text-primary">{formatBRL(p.salePrice ?? p.price)}</span>
+                      <span className="font-semibold text-signal">{formatBRL(p.salePrice ?? p.price)}</span>
                     </Link>
                   </li>
                 ))}

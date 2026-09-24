@@ -3,16 +3,14 @@
 import { useMemo, useState } from "react"
 import { motion, AnimatePresence, type Variants } from "motion/react"
 import { ProductCard } from "@/components/product-card"
+import { GlitchTitle } from "@/components/glitch-title"
 import type { Category, Product } from "@/lib/products"
 
 const filters: { key: Category | "todos" | "novidades"; label: string }[] = [
   { key: "todos", label: "Todos" },
-  { key: "tenis", label: "Tênis" },
-  { key: "sandalia", label: "Sandálias" },
   { key: "bermuda", label: "Bermudas" },
   { key: "camisa", label: "Camisas" },
   { key: "novidades", label: "Novidades" },
-  { key: "kits", label: "Kits" },
 ]
 
 const container: Variants = {
@@ -37,9 +35,7 @@ export function ProductShowcase({ products }: { products: Product[] }) {
   return (
     <section id="mais-desejados" className="mx-auto max-w-7xl px-4 py-16 lg:py-24">
       <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <h2 className="font-display text-4xl uppercase leading-[0.95] tracking-tight sm:text-5xl">
-          Mais desejados
-        </h2>
+        <GlitchTitle className="font-display text-4xl uppercase leading-[0.95] tracking-tight sm:text-5xl">Mais desejados</GlitchTitle>
 
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoria">
           {filters.map((f) => (

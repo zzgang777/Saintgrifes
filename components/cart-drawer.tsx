@@ -1,26 +1,21 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { motion, AnimatePresence } from "motion/react"
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react"
 import { useCart } from "@/components/cart-provider"
 import { formatBRL } from "@/lib/format"
-import { siteConfig, whatsappLink } from "@/lib/site"
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, updateQuantity, removeItem, subtotal, count } = useCart()
-
-  const checkoutMessage = () => {
-    const lines = items.map((i) => `• ${i.quantity}x ${i.name} (${i.size}) — ${formatBRL(i.price * i.quantity)}`)
-    return `Olá! Quero finalizar meu pedido na Estilo da Ilha:\n\n${lines.join("\n")}\n\nSubtotal: ${formatBRL(subtotal)}`
-  }
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
           <motion.div
-            className="fixed inset-0 z-[70] bg-foreground/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[70] bg-ink/75 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -39,7 +34,7 @@ export function CartDrawer() {
           >
             <header className="flex items-center justify-between border-b border-border p-5">
               <div className="flex items-center gap-2">
-                <ShoppingBag className="size-5 text-primary" aria-hidden />
+                <ShoppingBag className="size-5 text-signal" aria-hidden />
                 <h2 className="font-display text-xl uppercase tracking-wide">Meu Carrinho</h2>
                 <span className="text-sm text-muted-foreground">({count})</span>
               </div>
@@ -76,7 +71,7 @@ export function CartDrawer() {
                             <button
                               onClick={() => removeItem(item.slug, item.size)}
                               aria-label={`Remover ${item.name}`}
-                              className="text-muted-foreground hover:text-primary"
+                              className="text-muted-foreground hover:text-signal"
                             >
                               <Trash2 className="size-4" />
                             </button>
@@ -87,7 +82,7 @@ export function CartDrawer() {
                               <button
                                 onClick={() => updateQuantity(item.slug, item.size, item.quantity - 1)}
                                 aria-label="Diminuir quantidade"
-                                className="flex size-8 items-center justify-center text-foreground hover:text-primary"
+                                className="flex size-8 items-center justify-center text-foreground hover:text-signal"
                               >
                                 <Minus className="size-3.5" />
                               </button>
@@ -95,7 +90,7 @@ export function CartDrawer() {
                               <button
                                 onClick={() => updateQuantity(item.slug, item.size, item.quantity + 1)}
                                 aria-label="Aumentar quantidade"
-                                className="flex size-8 items-center justify-center text-foreground hover:text-primary"
+                                className="flex size-8 items-center justify-center text-foreground hover:text-signal"
                               >
                                 <Plus className="size-3.5" />
                               </button>
@@ -116,18 +111,15 @@ export function CartDrawer() {
                   <span className="text-sm text-muted-foreground">Subtotal</span>
                   <span className="font-display text-2xl text-foreground">{formatBRL(subtotal)}</span>
                 </div>
-                <motion.a
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
-                  href={whatsappLink(checkoutMessage())}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/checkout"
+                  onClick={closeCart}
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3.5 font-semibold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-accent"
                 >
-                  Finalizar no WhatsApp
-                </motion.a>
+                  Finalizar compra
+                </Link>
                 <p className="mt-3 text-center text-xs text-muted-foreground">
-                  Checkout preparado para integração futura. Envie o pedido para {siteConfig.name}.
+                  Pagamento seguro pelo Mercado Pago.
                 </p>
               </footer>
             )}

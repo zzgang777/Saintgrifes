@@ -2,7 +2,17 @@
 
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
+import { Plus, Trash2 } from "lucide-react"
 import type { Product, CategoryTile } from "@/lib/products"
+
+type StockRow = { size: string; qty: string }
+
+function stockRowsFrom(product?: Product): StockRow[] {
+  if (!product) return [{ size: "", qty: "" }]
+  const sizes = product.sizes.length > 0 ? product.sizes : Object.keys(product.stock ?? {})
+  if (sizes.length === 0) return [{ size: "", qty: "" }]
+  return sizes.map((size) => ({ size, qty: String(product.stock?.[size] ?? 0) }))
+}
 
 function slugify(value: string) {
   return value
@@ -24,7 +34,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
   const [image, setImage] = useState(product?.image ?? "")
   const [category, setCategory] = useState<string>(product?.category ?? categories[0]?.key ?? "")
   const [badge, setBadge] = useState(product?.badge ?? "")
-  const [sizes, setSizes] = useState(product?.sizes.join(", ") ?? "")
+  const [stockRows, setStockRows] = useState<StockRow[]>(stockRowsFrom(product))
   const [description, setDescription] = useState(product?.description ?? "")
   const [bestSeller, setBestSeller] = useState(product?.bestSeller ?? false)
   const [isNew, setIsNew] = useState(product?.isNew ?? false)
@@ -40,6 +50,16 @@ export function ProductForm({ product, categories }: { product?: Product; catego
 
     const categoryLabel = categories.find((c) => c.key === category)?.label ?? category
 
+    const cleanRows = stockRows
+      .map((r) => ({ size: r.size.trim(), qty: Math.max(0, Math.trunc(Number(r.qty)) || 0) }))
+      .filter((r) => r.size)
+
+    if (cleanRows.length === 0) {
+      setError("Adicione pelo menos um tamanho.")
+      setSaving(false)
+      return
+    }
+
     const payload = {
       slug: isEdit ? product!.slug : slugify(slug || name),
       name,
@@ -49,7 +69,8 @@ export function ProductForm({ product, categories }: { product?: Product; catego
       category,
       categoryLabel,
       badge: badge || undefined,
-      sizes: sizes.split(",").map((s) => s.trim()).filter(Boolean),
+      sizes: cleanRows.map((r) => r.size),
+      stock: Object.fromEntries(cleanRows.map((r) => [r.size, r.qty])),
       description,
       bestSeller,
       isNew,
@@ -73,7 +94,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
   }
 
   const inputClass =
-    "rounded-lg border border-zinc-700 bg-zinc-950 px-3.5 py-2.5 text-sm text-white outline-none focus:border-red-600"
+    "rounded-lg border border-zinc-700 bg-zinc-950 px-3.5 py-2.5 text-sm text-white outline-none focus:border-indigo-500"
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5 rounded-xl border border-zinc-800 bg-zinc-900 p-5">
@@ -156,15 +177,53 @@ export function ProductForm({ product, categories }: { product?: Product; catego
           />
         </div>
 
-        <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <label className="text-sm text-zinc-400">Tamanhos (separados por vírgula)</label>
-          <input
-            required
-            value={sizes}
-            onChange={(e) => setSizes(e.target.value)}
-            placeholder="P, M, G, GG"
-            className={inputClass}
-          />
+        <div className="flex flex-col gap-2 sm:col-span-2">
+          <label className="text-sm text-zinc-400">Tamanhos e estoque</label>
+          <div className="flex flex-col gap-2">
+            {stockRows.map((row, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <input
+                  value={row.size}
+                  onChange={(e) =>
+                    setStockRows((rows) => rows.map((r, ri) => (ri === i ? { ...r, size: e.target.value } : r)))
+                  }
+                  placeholder="Tamanho (ex.: M)"
+                  className={`${inputClass} w-32`}
+                />
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={row.qty}
+                  onChange={(e) =>
+                    setStockRows((rows) => rows.map((r, ri) => (ri === i ? { ...r, qty: e.target.value } : r)))
+                  }
+                  placeholder="Qtd. em estoque"
+                  className={`${inputClass} w-36`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setStockRows((rows) => rows.filter((_, ri) => ri !== i))}
+                  disabled={stockRows.length === 1}
+                  aria-label="Remover tamanho"
+                  className="rounded-lg p-2.5 text-zinc-500 hover:bg-zinc-800 hover:text-red-400 disabled:opacity-30"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setStockRows((rows) => [...rows, { size: "", qty: "" }])}
+            className="flex w-fit items-center gap-1.5 rounded-lg border border-dashed border-zinc-700 px-3 py-2 text-sm text-zinc-400 hover:border-indigo-500 hover:text-indigo-400"
+          >
+            <Plus className="size-4" />
+            Adicionar tamanho
+          </button>
+          <p className="text-xs text-zinc-600">
+            Coloque 0 quando um tamanho estiver esgotado — ele aparece assim para quem visita a loja.
+          </p>
         </div>
 
         <div className="flex flex-col gap-1.5 sm:col-span-2">
@@ -200,7 +259,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
             onChange={(e) => setOnRequest(e.target.checked)}
             className="size-4"
           />
-          Preço sob consulta (kits)
+          Preço sob consulta
         </label>
       </div>
 
@@ -210,7 +269,7 @@ export function ProductForm({ product, categories }: { product?: Product; catego
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+          className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
         >
           {saving ? "Salvando..." : isEdit ? "Salvar alterações" : "Criar produto"}
         </button>

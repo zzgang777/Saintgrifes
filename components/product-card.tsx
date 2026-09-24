@@ -1,52 +1,68 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { motion } from "motion/react"
-import { track } from "@vercel/analytics"
+import { motion, AnimatePresence } from "motion/react"
+import { Check } from "lucide-react"
+import { track } from "@/lib/track"
 import { useCart } from "@/components/cart-provider"
 import { ProductBadge } from "@/components/product-badge"
 import { formatBRL } from "@/lib/format"
-import { whatsappLink } from "@/lib/site"
-import type { Product } from "@/lib/products"
+import { openInstagramDm } from "@/lib/site"
+import { isSizeAvailable, isSoldOut, type Product } from "@/lib/products"
 
 const categoryStamp: Record<Product["category"], string> = {
-  tenis: "bg-sunset text-sunset-foreground",
-  sandalia: "bg-accent text-primary-foreground",
-  bermuda: "bg-foreground text-background",
+  tenis: "bg-chrome text-chrome-foreground",
+  sandalia: "bg-accent text-accent-foreground",
+  bermuda: "bg-bone text-ink",
   camisa: "bg-primary text-primary-foreground",
-  kits: "bg-secondary text-foreground",
 }
 
 export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
-  const [size, setSize] = useState<string | null>(product.sizes.length === 1 ? product.sizes[0] : null)
+  const soldOut = isSoldOut(product)
+  const [size, setSize] = useState<string | null>(
+    product.sizes.length === 1 && isSizeAvailable(product, product.sizes[0]) ? product.sizes[0] : null,
+  )
   const [error, setError] = useState(false)
+  const [added, setAdded] = useState(false)
+  const addedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => {
+    if (addedTimer.current) clearTimeout(addedTimer.current)
+  }, [])
 
   const price = product.salePrice ?? product.price
   const hasSale = product.salePrice != null
   const discount = hasSale ? Math.round((1 - price / product.price) * 100) : 0
 
   const handleBuy = () => {
+    if (soldOut) return
     if (!size) {
       setError(true)
       return
     }
     if (product.onRequest) {
-      track("Consultar no WhatsApp", { product: product.name, category: product.categoryLabel })
-      window.open(whatsappLink(`Olá! Tenho interesse no ${product.name} (tamanho ${size}). Pode me passar o valor?`), "_blank")
+      track("Consultar no Instagram", { product: product.name, category: product.categoryLabel })
+      openInstagramDm(`Olá! Tenho interesse no ${product.name} (tamanho ${size}). Pode me passar o valor?`)
+      setAdded(true)
+      if (addedTimer.current) clearTimeout(addedTimer.current)
+      addedTimer.current = setTimeout(() => setAdded(false), 1400)
       return
     }
     track("Adicionar ao carrinho", { product: product.name, category: product.categoryLabel })
     addItem(product, size)
+    setAdded(true)
+    if (addedTimer.current) clearTimeout(addedTimer.current)
+    addedTimer.current = setTimeout(() => setAdded(false), 1400)
   }
 
   return (
     <motion.div
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-xl hover:shadow-primary/10"
+      className="group flex flex-col overflow-hidden rounded-md border border-border bg-card transition-shadow hover:shadow-xl hover:shadow-primary/10"
     >
       <Link
         href={`/produto/${product.slug}`}
@@ -60,7 +76,11 @@ export function ProductCard({ product }: { product: Product }) {
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
-        {product.badge && <ProductBadge label={product.badge} />}
+        {soldOut ? <ProductBadge label="ESGOTADO" /> : product.badge && <ProductBadge label={product.badge} />}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-[tape-sweep_0.9s_linear_1]"
+          aria-hidden
+        />
       </Link>
 
       {/* Talão perfurado — separa a foto da etiqueta, como um talão de loja */}
@@ -78,7 +98,7 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="flex flex-1 flex-col px-4 pb-4 pt-2">
         <Link
           href={`/produto/${product.slug}`}
-          className="font-display text-lg uppercase leading-[1.05] tracking-tight text-balance line-clamp-2 hover:text-primary"
+          className="font-display text-lg uppercase leading-[1.05] tracking-tight text-balance line-clamp-2 hover:text-signal"
         >
           {product.name}
         </Link>
@@ -92,7 +112,7 @@ export function ProductCard({ product }: { product: Product }) {
               {hasSale && (
                 <>
                   <span className="text-sm text-muted-foreground line-through">{formatBRL(product.price)}</span>
-                  <span className="rounded-full bg-sunset px-2 py-0.5 text-[10px] font-bold text-sunset-foreground">
+                  <span className="rounded-sm bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
                     -{discount}%
                   </span>
                 </>
@@ -104,33 +124,63 @@ export function ProductCard({ product }: { product: Product }) {
         {/* Seleção de tamanho */}
         <div className="mt-3">
           <div className="flex flex-wrap gap-1.5" role="group" aria-label="Selecionar tamanho">
-            {product.sizes.map((s) => (
-              <button
-                key={s}
-                onClick={() => {
-                  setSize(s)
-                  setError(false)
-                }}
-                aria-pressed={size === s}
-                className={`min-w-8 rounded-md px-2 py-1 text-xs font-bold transition-all ${
-                  size === s
-                    ? "-rotate-2 bg-foreground text-background shadow-sm"
-                    : "bg-secondary text-foreground/60 hover:bg-secondary/70"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
+            {product.sizes.map((s) => {
+              const available = isSizeAvailable(product, s)
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  disabled={!available}
+                  onClick={() => {
+                    setSize(s)
+                    setError(false)
+                  }}
+                  aria-pressed={size === s}
+                  className={`min-w-8 rounded-md px-2 py-1 text-xs font-bold transition-all ${
+                    !available
+                      ? "cursor-not-allowed bg-secondary/50 text-muted-foreground/50 line-through"
+                      : size === s
+                        ? "-rotate-2 bg-chrome text-chrome-foreground shadow-sm"
+                        : "bg-secondary text-foreground/60 hover:bg-secondary/70"
+                  }`}
+                >
+                  {s}
+                </button>
+              )
+            })}
           </div>
-          {error && <p className="mt-1.5 text-xs text-primary">Selecione um tamanho.</p>}
+          {error && <p className="mt-1.5 text-xs text-signal">Selecione um tamanho.</p>}
         </div>
 
         <div className="mt-4 flex flex-col gap-2.5">
           <button
             onClick={handleBuy}
-            className="w-full rounded-full bg-primary py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-accent"
+            disabled={soldOut}
+            className="w-full rounded-sm bg-primary py-2.5 font-display text-lg font-bold uppercase tracking-wider text-primary-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:bg-secondary disabled:text-muted-foreground"
           >
-            {product.onRequest ? "Consultar no WhatsApp" : "Comprar"}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={added ? "added" : "buy"}
+                initial={{ y: 8, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -8, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="inline-flex items-center justify-center gap-1.5"
+              >
+                {soldOut ? (
+                  "Esgotado"
+                ) : added ? (
+                  <>
+                    <Check className="size-5" aria-hidden />
+                    {product.onRequest ? "Mensagem copiada" : "Adicionado"}
+                  </>
+                ) : product.onRequest ? (
+                  "Consultar no Instagram"
+                ) : (
+                  "Comprar"
+                )}
+              </motion.span>
+            </AnimatePresence>
           </button>
           <Link
             href={`/produto/${product.slug}`}
