@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { supabaseAdmin } from "@/lib/supabase"
 
 export async function POST(request: Request) {
@@ -29,5 +30,11 @@ export async function POST(request: Request) {
   })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+  // A home e as páginas de produto são geradas de forma estática — sem isso, um produto novo só
+  // apareceria no site depois do próximo deploy.
+  revalidatePath("/")
+  revalidatePath("/produto/[slug]", "page")
+
   return NextResponse.json({ ok: true })
 }

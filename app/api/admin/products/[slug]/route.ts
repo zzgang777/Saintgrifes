@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { supabaseAdmin } from "@/lib/supabase"
 
 export async function PUT(request: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -32,6 +33,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ slug
     .eq("slug", slug)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+  // Home e página de produto são estáticas — sem isso, a edição só apareceria no próximo deploy.
+  revalidatePath("/")
+  revalidatePath(`/produto/${slug}`)
+
   return NextResponse.json({ ok: true })
 }
 
@@ -47,5 +53,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   const { error } = await supabaseAdmin.from("products").delete().eq("slug", slug)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+  revalidatePath("/")
+  revalidatePath(`/produto/${slug}`)
+
   return NextResponse.json({ ok: true })
 }

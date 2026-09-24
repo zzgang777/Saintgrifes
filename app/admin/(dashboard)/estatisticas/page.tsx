@@ -23,8 +23,8 @@ export default function AdminEstatisticasPage() {
           <div>
             <p className="font-medium text-white">Visitas ao site</p>
             <p className="mt-1 text-sm text-zinc-400">
-              Por enquanto, nada está contando as visitas. O site usava o Vercel Analytics, mas isso só funciona em
-              projetos hospedados na Vercel — como a loja agora roda no Netlify, esse contador foi desligado.
+              Por enquanto, nada está contando as visitas. A loja roda na Vercel, então dá pra ativar o Vercel
+              Analytics em Settings → Analytics do projeto — é só isso, sem precisar mexer no código.
             </p>
           </div>
         </div>
