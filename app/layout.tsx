@@ -27,8 +27,6 @@ export const metadata: Metadata = {
     default: "Saint Grifes",
     template: "%s | Saint Grifes",
   },
-  description:
-    "Saint Grifes é streetwear em São Luís (SLZ): camisas e bermudas com atitude de rua. Compre pelo site e finalize pelo Instagram.",
   keywords: [
     "Saint Grifes",
     "streetwear São Luís",
@@ -45,13 +43,11 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "Saint Grifes",
     title: "Saint Grifes",
-    description: "Camisas e bermudas com atitude de rua. Referência em SLZ.",
     images: [{ url: "/saint-grifes-og.jpg", width: 1200, height: 630, alt: "Saint Grifes" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Saint Grifes",
-    description: "Camisas e bermudas com atitude de rua. Referência em SLZ.",
     images: ["/saint-grifes-og.jpg"],
   },
   icons: {
