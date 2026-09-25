@@ -48,7 +48,7 @@ function addBusinessDays(date: Date, days: number) {
 
 // Pedido até esse horário sai no mesmo dia (bate com o banner "+ ENVIAMOS PARA TODO O BRASIL" da
 // home); depois disso, só no dia seguinte.
-const SAME_DAY_CUTOFF_HOUR = 12
+const SAME_DAY_CUTOFF_HOUR = 14
 
 function sameDayEstimate() {
   return `Pedidos realizados até às ${SAME_DAY_CUTOFF_HOUR}h são entregues no mesmo dia. O horário de entrega pode variar de acordo com a rota. Aguarde nosso contato pelo WhatsApp para mais informações.`
