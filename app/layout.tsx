@@ -24,7 +24,7 @@ const siteUrl = getSiteUrl()
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Saint Grifes | Streetwear em São Luís - MA",
+    default: "Saint Grifes",
     template: "%s | Saint Grifes",
   },
   description:
@@ -44,18 +44,18 @@ export const metadata: Metadata = {
     locale: "pt_BR",
     url: siteUrl,
     siteName: "Saint Grifes",
-    title: "Saint Grifes | Streetwear em São Luís - MA",
+    title: "Saint Grifes",
     description: "Camisas e bermudas com atitude de rua. Referência em SLZ.",
     images: [{ url: "/saint-grifes-og.jpg", width: 1200, height: 630, alt: "Saint Grifes" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Saint Grifes | Streetwear em São Luís - MA",
+    title: "Saint Grifes",
     description: "Camisas e bermudas com atitude de rua. Referência em SLZ.",
     images: ["/saint-grifes-og.jpg"],
   },
   icons: {
-    icon: "/saint-grifes-mark.png",
+    icon: "/favicon.png",
   },
 }
 
