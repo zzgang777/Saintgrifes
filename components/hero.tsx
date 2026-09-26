@@ -12,7 +12,7 @@ export function Hero() {
 
   return (
     <section ref={ref} className="relative overflow-hidden bg-ink">
-      <div className="relative aspect-[1671/941] w-full">
+      <div className="relative aspect-[1670/941] w-full">
         <motion.div className="absolute inset-0" style={{ y, scale }}>
           <Image
             src="/banner-inicio-2.webp"
@@ -21,6 +21,7 @@ export function Hero() {
             priority
             className="object-cover object-center"
             sizes="100vw"
+            unoptimized
           />
         </motion.div>
       </div>
